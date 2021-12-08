@@ -82,11 +82,11 @@ func (s *LichessApi) handleEvent(e *Event, eng engine.ChessEngine) {
 func (s *LichessApi) handleChallengeEvent(e *Event) {
 	challengeId := e.Challenge.Id
 	if s.validChallenge(&e.Challenge) && s.gamesInProgress < 1 {
-		log.Println("Accepting challenge", e.Challenge)
+		log.Println("Accepting challenge", "https://lichess.org/" + e.Challenge.Id)
 		resp := s.request("POST", "challenge/"+challengeId+"/accept")
 		resp.Body.Close()
 	} else {
-		log.Println("Declining challenge", e.Challenge)
+		log.Println("Declining challenge", "https://lichess.org/" + e.Challenge.Id)
 		resp := s.request("POST", "challenge/"+challengeId+"/decline")
 		resp.Body.Close()
 	}

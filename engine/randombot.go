@@ -60,3 +60,7 @@ func (b *RandomBot) NextBestMove() string {
     randmove := moves[rand.Intn(len(moves))]
     return randmove.String()
 }
+
+func (b *RandomBot) IsGameOver() bool {
+    return b.game.Outcome() != "*"
+}

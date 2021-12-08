@@ -84,6 +84,9 @@ func (s *LichessApi) streamGame(gameId string, eng engine.ChessEngine) {
 func (s *LichessApi) runEngine(gameId, move string, eng engine.ChessEngine) {
     log.Println("got move: " + move)            
     eng.Move(move)
+    if eng.IsGameOver() {
+        return
+    }
     nextMove := eng.NextBestMove()
     eng.Move(nextMove)
     s.makeMove(gameId, nextMove)
