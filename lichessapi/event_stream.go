@@ -2,6 +2,10 @@ package lichessapi
 
 import (
     "log"
+    //"time"
+    "encoding/json"
+
+    "github.com/ipratt-code/deltapawn-lichess-bot/engine"
 )
 
 type Event struct {
@@ -41,6 +45,37 @@ type Challenge struct {
 	Rated bool   `json:"rated"`
 	Speed string `json:"speed"`
 	Color string `json:"color"`
+}
+
+func (s *LichessApi) StreamEvent(eng engine.ChessEngine) {
+    resp := s.request("GET", "stream/event")
+	dec := json.NewDecoder(resp.Body)
+
+	for dec.More() {
+		var e Event
+		err := dec.Decode(&e)
+		if err != nil {
+			log.Println(err)
+		} else {
+            log.Println("got event: " + e.Type)
+			s.handleEvent(&e, eng)
+		}
+        //time.Sleep(time.Second)
+	}
+}
+
+func (s *LichessApi) handleEvent(e *Event, eng engine.ChessEngine) {
+	switch e.Type {
+	case "challenge":
+		s.handleChallengeEvent(e)
+	case "gameStart":
+		log.Println("starting game against " + e.Challenge.Challenger.Name)
+        s.streamGame(e.Game.Id, eng)
+    case "gameFinish":
+		log.Println("ending game against " + e.Challenge.Challenger.Name)
+	default:
+		log.Printf("Unhandled Event %v\n", e.Type)
+	}
 }
 
 
