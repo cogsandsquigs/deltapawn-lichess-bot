@@ -1,6 +1,7 @@
 package engine
 
 import (
+    "log"
     "time"
     "strings"
     "math/rand"
@@ -15,7 +16,9 @@ type RandomBot struct {
 
 func NewRandomBot() *RandomBot {
     return &RandomBot{
-        game: chess.NewGame(),
+        game: chess.NewGame(
+            chess.UseNotation(chess.UCINotation{}),
+        ),
     }
 }
 
@@ -32,7 +35,14 @@ func (b *RandomBot) SetColor(color string) {
 }
 
 func (b *RandomBot) Move(move string) {
-    b.game.MoveStr(move)
+    if move == "" {
+        return
+    } 
+    
+    err := b.game.MoveStr(move)
+    if err != nil {
+        log.Println(err)
+    }
 }
 
 func (b *RandomBot) GameMoves() string {

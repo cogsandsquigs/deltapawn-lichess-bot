@@ -69,17 +69,11 @@ func (s *LichessApi) streamGame(gameId string, eng engine.ChessEngine) {
         
         if moves[0] != "" {
             move := moves[len(moves) - 1]
-            
-            log.Println("got move: " + move)            
-            log.Println()
+
             if eng.Color() == "white" && len(moves) % 2 == 0 {
                 s.runEngine(gameId, move, eng)
-            
             } else if eng.Color() == "black" && len(moves) % 2 == 1 {
-                s.runEngine(gameId, move, eng)
-            
-            } else {
-                //eng.Move(move)
+                s.runEngine(gameId, move, eng)            
             }
         } else if eng.Color() == "white" {
             s.runEngine(gameId, "", eng)
@@ -88,9 +82,10 @@ func (s *LichessApi) streamGame(gameId string, eng engine.ChessEngine) {
 }
 
 func (s *LichessApi) runEngine(gameId, move string, eng engine.ChessEngine) {
+    log.Println("got move: " + move)            
     eng.Move(move)
     nextMove := eng.NextBestMove()
-    eng.Move(move)
+    eng.Move(nextMove)
     s.makeMove(gameId, nextMove)
 }
 
