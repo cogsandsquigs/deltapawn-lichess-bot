@@ -85,6 +85,7 @@ func (b *LookaheadBot) Reset() {
 func (b *LookaheadBot) negamax(game *chess.Game, depth, color int) float64 {
     switch depth {
     case 0:
+        log.Printf("evaluating move %s with depth of %d", move.String(), depth)
         return b.evalBoard(game.Position().Board())
     default:
         moves := b.sortMoves(game, game.ValidMoves(), color)
