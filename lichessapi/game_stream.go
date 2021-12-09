@@ -85,6 +85,7 @@ func (s *LichessApi) runEngine(gameId, move string, eng engine.ChessEngine) {
     log.Println("got move: " + move)            
     eng.Move(move)
     if eng.IsGameOver() {
+		eng.Reset()
         return
     }
     nextMove := eng.NextBestMove()

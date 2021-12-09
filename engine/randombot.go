@@ -64,3 +64,7 @@ func (b *RandomBot) NextBestMove() string {
 func (b *RandomBot) IsGameOver() bool {
     return b.game.Outcome() != "*"
 }
+
+func (b *RandomBot) Reset() {
+    b.game = NewRandomBot().game
+}
