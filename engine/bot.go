@@ -3,6 +3,7 @@ package engine
 type ChessEngine interface{
     Name() string
     Color() string
+    New() ChessEngine
     Reset() // reset's the engine's internal state
     SetColor(color string)
     Move(move string)

@@ -32,6 +32,10 @@ func (b *LookaheadBot) Color() string {
     return b.color
 }
 
+func (b *LookaheadBot) New() ChessEngine {
+    return NewLookaheadBot()
+}
+
 func (b *LookaheadBot) SetColor(color string) {
     b.color = color
 }

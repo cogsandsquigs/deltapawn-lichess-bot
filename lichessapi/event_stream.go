@@ -70,7 +70,7 @@ func (s *LichessApi) handleEvent(e *Event, eng engine.ChessEngine) {
 		s.handleChallengeEvent(e)
 	case "gameStart":
 		log.Println("starting game")
-        s.streamGame(e.Game.Id, eng)
+        go s.streamGame(e.Game.Id, eng.New())
     case "gameFinish":
 		log.Println("ending game against")
 	default:
