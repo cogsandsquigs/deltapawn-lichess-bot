@@ -12,7 +12,7 @@ import (
 
 var preferences = lichessapi.BotPreferences{
 	Variants: []string{"standard"},
-	Speeds:   []string{"rapid", "classical", "unlimited"},
+	Speeds:   []string{"rapid", "classical", "correspondence"},
 	Modes:    []string{"rated", "casual"},
 }
 

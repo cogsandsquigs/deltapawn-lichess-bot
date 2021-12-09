@@ -87,6 +87,7 @@ func (s *LichessApi) handleChallengeEvent(e *Event) {
 		resp.Body.Close()
 	} else {
 		log.Println("Declining challenge", "https://lichess.org/" + e.Challenge.Id)
+		log.Println(e.Challenge.Speed)
 		resp := s.request("POST", "challenge/"+challengeId+"/decline")
 		resp.Body.Close()
 	}
