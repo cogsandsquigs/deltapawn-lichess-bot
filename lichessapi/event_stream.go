@@ -69,10 +69,10 @@ func (s *LichessApi) handleEvent(e *Event, eng engine.ChessEngine) {
 	case "challenge":
 		s.handleChallengeEvent(e)
 	case "gameStart":
-		log.Println("starting game against " + e.Challenge.Challenger.Name)
+		log.Println("starting game")
         s.streamGame(e.Game.Id, eng)
     case "gameFinish":
-		log.Println("ending game against " + e.Challenge.Challenger.Name)
+		log.Println("ending game against")
 	default:
 		log.Printf("Unhandled Event %v\n", e.Type)
 	}

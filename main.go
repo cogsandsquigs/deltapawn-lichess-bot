@@ -22,7 +22,7 @@ func main() {
 		log.Println("was not able to read environment variables from .env file: ", err)
 	}
 	server := lichessapi.NewLichessApi(os.Getenv("LICHESSAUTH"), preferences)
-	bot := engine.NewRandomBot()
+	bot := engine.NewLookaheadBot()
 	log.Println("bot starting up!...")
 	server.StreamEvent(bot)
 }
