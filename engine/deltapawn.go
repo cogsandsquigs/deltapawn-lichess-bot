@@ -111,6 +111,8 @@ func (b *LookaheadBot) negamax(game *chess.Game, depth, color int) float64 {
 
 }
 
+var PieceValuation = []float64{9, 5, 3.5, 3, 1}
+
 func (b *LookaheadBot) sortMoves(game *chess.Game, moves []*chess.Move, color int) []*chess.Move {
 	sort.SliceStable(moves, func(i, j int) bool {
 		g1 := game.Clone()
@@ -138,18 +140,16 @@ func (b *LookaheadBot) evalBoard(board *chess.Board) float64 {
 			m = -1
 		}
 		switch piece.Type() {
-		case chess.King:
-			score += dummyBotPieceValuation[0] * m
 		case chess.Queen:
-			score += dummyBotPieceValuation[1] * m
+			score += PieceValuation[0] * m
 		case chess.Rook:
-			score += dummyBotPieceValuation[2] * m
+			score += PieceValuation[1] * m
 		case chess.Bishop:
-			score += dummyBotPieceValuation[3] * m
+			score += PieceValuation[2] * m
 		case chess.Knight:
-			score += dummyBotPieceValuation[4] * m
+			score += PieceValuation[3] * m
 		case chess.Pawn:
-			score += dummyBotPieceValuation[5] * m
+			score += PieceValuation[4] * m
 		default:
 			score += 0
 		}
