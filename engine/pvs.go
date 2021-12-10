@@ -6,6 +6,7 @@ import (
 	"github.com/notnil/chess"
 )
 
+// implementation of principal valuation searche
 func pvs(game *chess.Game, alpha, beta, depth, color int) int {
 	switch depth {
 	case 0:
