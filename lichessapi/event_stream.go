@@ -75,6 +75,7 @@ func (s *LichessApi) handleEvent(e *Event, eng engine.ChessEngine) {
 		s.gameKillChans[e.Game.Id] = c
 		s.gamesInProgress += 1
 	case "gameFinish":
+        s.gamesInProgress -= 1
 		log.Println("ending game against")
 	default:
 		log.Printf("Unhandled Event %v\n", e.Type)

@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"os"
-	//"fmt"
+	"net/http"
 
 	"github.com/ipratt-code/deltapawn-lichess-bot/engine"
 	"github.com/ipratt-code/deltapawn-lichess-bot/lichessapi"
@@ -25,4 +25,10 @@ func main() {
 	bot := engine.NewLookaheadBot()
 	log.Println("bot starting up!...")
 	server.StreamEvent(bot)
+
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        log.Println("pinged!")
+    })
+
+    log.Fatal(http.ListenAndServe(":8080", nil))
 }

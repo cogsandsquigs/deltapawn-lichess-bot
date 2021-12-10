@@ -103,7 +103,7 @@ func (b *LookaheadBot) negamax(game *chess.Game, depth, color int) float64 {
 			g := game.Clone()
 			g.Move(move)
 			log.Printf("evaluating move %s with depth of %d", move.String(), depth)
-			best = math.Max(best, b.negamax(g, depth-1, -color))
+			best = math.Max(best, -b.negamax(g, depth-1, -color))
 		}
 
 		return best

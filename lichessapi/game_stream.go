@@ -53,6 +53,7 @@ func (s *LichessApi) gameStreamWrapper(c chan bool, f func(string, engine.ChessE
 		select {
 		case <-c:
 		case <-g:
+            c <- true
 			return
 		}
 	}
