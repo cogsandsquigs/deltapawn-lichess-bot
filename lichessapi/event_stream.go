@@ -1,11 +1,11 @@
 package lichessapi
 
 import (
-    "log"
-    //"time"
-    "encoding/json"
+	"log"
+	//"time"
+	"encoding/json"
 
-    "github.com/ipratt-code/deltapawn-lichess-bot/engine"
+	"github.com/ipratt-code/deltapawn-lichess-bot/engine"
 )
 
 type Event struct {
@@ -48,7 +48,7 @@ type Challenge struct {
 }
 
 func (s *LichessApi) StreamEvent(eng engine.ChessEngine) {
-    resp := s.request("GET", "stream/event")
+	resp, _ := s.request("GET", "stream/event")
 	dec := json.NewDecoder(resp.Body)
 
 	for dec.More() {
@@ -57,10 +57,10 @@ func (s *LichessApi) StreamEvent(eng engine.ChessEngine) {
 		if err != nil {
 			log.Println(err)
 		} else {
-            log.Println("got event: " + e.Type)
+			log.Println("got event: " + e.Type)
 			s.handleEvent(&e, eng)
 		}
-        //time.Sleep(time.Second)
+		//time.Sleep(time.Second)
 	}
 }
 
@@ -70,34 +70,35 @@ func (s *LichessApi) handleEvent(e *Event, eng engine.ChessEngine) {
 		s.handleChallengeEvent(e)
 	case "gameStart":
 		log.Println("starting game")
-        go s.streamGame(e.Game.Id, eng.New())
-    case "gameFinish":
+		c := make(chan bool)
+		go s.gameStreamWrapper(c, s.streamGame, e.Game.Id, eng.New())
+		s.gameKillChans[e.Game.Id] = c
+		s.gamesInProgress += 1
+	case "gameFinish":
 		log.Println("ending game against")
 	default:
 		log.Printf("Unhandled Event %v\n", e.Type)
 	}
 }
 
-
 func (s *LichessApi) handleChallengeEvent(e *Event) {
 	challengeId := e.Challenge.Id
 	if s.validChallenge(&e.Challenge) && s.gamesInProgress < 1 {
-		log.Println("Accepting challenge", "https://lichess.org/" + e.Challenge.Id)
-		resp := s.request("POST", "challenge/"+challengeId+"/accept")
+		log.Println("Accepting challenge", "https://lichess.org/"+e.Challenge.Id)
+		resp, _ := s.request("POST", "challenge/"+challengeId+"/accept")
 		resp.Body.Close()
 	} else {
-		log.Println("Declining challenge", "https://lichess.org/" + e.Challenge.Id)
-		log.Println(e.Challenge.Speed)
-		resp := s.request("POST", "challenge/"+challengeId+"/decline")
+		log.Println("Declining challenge", "https://lichess.org/"+e.Challenge.Id)
+		resp, _ := s.request("POST", "challenge/"+challengeId+"/decline")
 		resp.Body.Close()
 	}
 }
 
 func (s *LichessApi) validChallenge(c *Challenge) bool {
-    return c.Status == "created" &&
-		c.Challenger.Online == true &&
+	return c.Status == "created" &&
+		c.Challenger.Online &&
 		includes(s.Challenge.Variants, c.Variant.Key) &&
 		includes(s.Challenge.Speeds, c.Speed) &&
-		(c.Rated == true && includes(s.Challenge.Modes, "rated") ||
-			c.Rated == false && includes(s.Challenge.Modes, "casual"))
+		(c.Rated && includes(s.Challenge.Modes, "rated") ||
+			!c.Rated && includes(s.Challenge.Modes, "casual"))
 }
