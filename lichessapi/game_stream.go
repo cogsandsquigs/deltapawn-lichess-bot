@@ -74,9 +74,9 @@ func (s *LichessApi) streamGame(gameId string, eng engine.ChessEngine) {
 
 		if gS.Type == "gameFull" {
 			if gS.White.Id == "deltapawn" {
-				eng.SetColor("white")
+				eng.SetColor(1)
 			} else {
-				eng.SetColor("black")
+				eng.SetColor(-1)
 			}
 		}
 
@@ -85,12 +85,12 @@ func (s *LichessApi) streamGame(gameId string, eng engine.ChessEngine) {
 		if moves[0] != "" {
 			move := moves[len(moves)-1]
 
-			if eng.Color() == "white" && len(moves)%2 == 0 {
+			if eng.Color() == 1 && len(moves)%2 == 0 {
 				s.runEngine(gameId, move, eng)
-			} else if eng.Color() == "black" && len(moves)%2 == 1 {
+			} else if eng.Color() == -1 && len(moves)%2 == 1 {
 				s.runEngine(gameId, move, eng)
 			}
-		} else if eng.Color() == "white" {
+		} else if eng.Color() == 1 {
 			s.runEngine(gameId, "", eng)
 		}
 	}
