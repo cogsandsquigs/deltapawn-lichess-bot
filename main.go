@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"os"
 	"net/http"
+	"os"
 
 	"github.com/ipratt-code/deltapawn-lichess-bot/engine"
 	"github.com/ipratt-code/deltapawn-lichess-bot/lichessapi"
@@ -22,13 +22,13 @@ func main() {
 		log.Println("was not able to read environment variables from .env file: ", err)
 	}
 	server := lichessapi.NewLichessApi(os.Getenv("LICHESSAUTH"), preferences)
-	bot := engine.NewLookaheadBot()
+	bot := engine.NewDeltapawn()
 	log.Println("bot starting up!...")
 	server.StreamEvent(bot)
 
-    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        log.Println("pinged!")
-    })
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("pinged!")
+	})
 
-    log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

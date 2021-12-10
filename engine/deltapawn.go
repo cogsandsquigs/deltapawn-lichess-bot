@@ -11,32 +11,34 @@ import (
 	"github.com/notnil/chess"
 )
 
-type LookaheadBot struct {
+type Deltapawn struct {
 	color int
 	game  *chess.Game
+	depth int
 }
 
-func NewLookaheadBot() *LookaheadBot {
-	return &LookaheadBot{
+func NewDeltapawn() *Deltapawn {
+	return &Deltapawn{
 		game: chess.NewGame(
 			chess.UseNotation(chess.UCINotation{}),
 		),
+		depth: searchDepth,
 	}
 }
 
-func (b *LookaheadBot) Name() string {
-	return "LookaheadBot"
+func (b *Deltapawn) Name() string {
+	return "Deltapawn"
 }
 
-func (b *LookaheadBot) Color() int {
+func (b *Deltapawn) Color() int {
 	return b.color
 }
 
-func (b *LookaheadBot) New() ChessEngine {
-	return NewLookaheadBot()
+func (b *Deltapawn) New() ChessEngine {
+	return NewDeltapawn()
 }
 
-func (b *LookaheadBot) SetColor(color int) {
+func (b *Deltapawn) SetColor(color int) {
 	if (color != 1 || color != -1) && color > 1 {
 		b.color = 1
 	} else if (color != 1 || color != -1) && color < 1 {
@@ -46,7 +48,7 @@ func (b *LookaheadBot) SetColor(color int) {
 	}
 }
 
-func (b *LookaheadBot) Move(move string) {
+func (b *Deltapawn) Move(move string) {
 	if move == "" {
 		return
 	}
@@ -57,7 +59,7 @@ func (b *LookaheadBot) Move(move string) {
 	}
 }
 
-func (b *LookaheadBot) GameMoves() string {
+func (b *Deltapawn) GameMoves() string {
 	var stringmoves []string
 	for _, m := range b.game.Moves() {
 		stringmoves = append(stringmoves, m.String())
@@ -66,16 +68,16 @@ func (b *LookaheadBot) GameMoves() string {
 	return strings.Join(stringmoves, " ")
 }
 
-func (b *LookaheadBot) NextBestMove() string {
+func (b *Deltapawn) NextBestMove() string {
 	rand.Seed(time.Now().Unix())
 
 	moves := b.game.ValidMoves()
 	bestmove := moves[0]
-	bestscore := -9999999999.0
+	bestscore := -9999999999
 	for _, move := range moves {
 		g := b.game.Clone()
 		g.Move(move)
-		v := b.negamax(g, 0, 1)
+		v := pvs(g, math.MinInt, math.MaxInt, b.depth, 1)
 		if v > bestscore {
 			bestmove = move
 		}
@@ -84,36 +86,15 @@ func (b *LookaheadBot) NextBestMove() string {
 	return bestmove.String()
 }
 
-func (b *LookaheadBot) IsGameOver() bool {
+func (b *Deltapawn) IsGameOver() bool {
 	return b.game.Outcome() != "*"
 }
 
-func (b *LookaheadBot) Reset() {
-	b.game = NewLookaheadBot().game
+func (b *Deltapawn) Reset() {
+	b.game = NewDeltapawn().game
 }
 
-func (b *LookaheadBot) negamax(game *chess.Game, depth, color int) float64 {
-	switch depth {
-	case 0:
-		return b.evalBoard(game.Position().Board())
-	default:
-		moves := b.sortMoves(game, game.ValidMoves(), color)
-		best := -99999999999.0
-		for _, move := range moves {
-			g := game.Clone()
-			g.Move(move)
-			log.Printf("evaluating move %s with depth of %d", move.String(), depth)
-			best = math.Max(best, -b.negamax(g, depth-1, -color))
-		}
-
-		return best
-	}
-
-}
-
-var PieceValuation = []float64{9, 5, 3.5, 3, 1}
-
-func (b *LookaheadBot) sortMoves(game *chess.Game, moves []*chess.Move, color int) []*chess.Move {
+func sortMoves(game *chess.Game, moves []*chess.Move, color int) []*chess.Move {
 	sort.SliceStable(moves, func(i, j int) bool {
 		g1 := game.Clone()
 		g1.Move(moves[i])
@@ -124,21 +105,20 @@ func (b *LookaheadBot) sortMoves(game *chess.Game, moves []*chess.Move, color in
 		b1 := g1.Position().Board()
 		b2 := g2.Position().Board()
 
-		return b.evalBoard(b1)*float64(color) > b.evalBoard(b2)*float64(color)
+		return evalBoard(b1)*color > evalBoard(b2)*color
 	})
 
 	return moves
 }
 
-func (b *LookaheadBot) evalBoard(board *chess.Board) float64 {
-	score := 0.0
+// evaluates the board in white's favor
+func evalBoard(board *chess.Board) int {
+	// define variables here
+
+	score := 0
+
 	for _, piece := range board.SquareMap() {
-		var m float64
-		if piece.Color() == 1 {
-			m = 1
-		} else {
-			m = -1
-		}
+		m := -2*int(piece.Color()) + 3 // turns color to white: 1, black: -1
 		switch piece.Type() {
 		case chess.Queen:
 			score += PieceValuation[0] * m
