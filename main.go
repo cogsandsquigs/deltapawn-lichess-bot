@@ -1,6 +1,7 @@
 package main
 
 import (
+    "fmt"
 	"log"
 	"net/http"
 	"os"
@@ -24,10 +25,11 @@ func main() {
 	server := lichessapi.NewLichessApi(os.Getenv("LICHESSAUTH"), preferences)
 	bot := engine.NewDeltapawn()
 	log.Println("bot starting up!...")
-	server.StreamEvent(bot)
+	go server.StreamEvent(bot)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("pinged!")
+        fmt.Fprintf(w, "hello world!")
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", nil))

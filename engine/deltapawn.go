@@ -9,12 +9,14 @@ import (
 	"time"
 
 	"github.com/notnil/chess"
+	"github.com/notnil/chess/opening"
 )
 
 type Deltapawn struct {
 	color int
 	game  *chess.Game
 	depth int
+    book  opening.Book
 }
 
 func NewDeltapawn() *Deltapawn {
@@ -23,6 +25,7 @@ func NewDeltapawn() *Deltapawn {
 			chess.UseNotation(chess.UCINotation{}),
 		),
 		depth: searchDepth,
+        book: opening.NewBookECO(),
 	}
 }
 
@@ -74,10 +77,28 @@ func (b *Deltapawn) NextBestMove() string {
 	moves := b.game.ValidMoves()
 	bestmove := moves[0]
 	bestscore := -9999999999
+
+    possibleopenings := b.book.Possible(b.game.Moves())
+    /*
+    for _, o := range possibleopenings {
+        log.Println(o.Code())
+        time.Sleep(time.Millisecond * 50)
+
+    }
+    */ 
+    if len(possibleopenings) > 1 {
+        om := possibleopenings[rand.Intn(len(possibleopenings))].Game().Moves()
+        return om[len(b.game.Moves())].String()
+    } else if len(possibleopenings) == 1 {
+        om := possibleopenings[0].Game().Moves()
+        return om[len(b.game.Moves())].String()
+    
+    }
+
 	for _, move := range moves {
 		g := b.game.Clone()
 		g.Move(move)
-		v := pvs(g, math.MinInt, math.MaxInt, b.depth, 1)
+		v := pvs(g, math.MinInt64, math.MaxInt64, b.depth, 1)
 		if v > bestscore {
 			bestmove = move
 		}
