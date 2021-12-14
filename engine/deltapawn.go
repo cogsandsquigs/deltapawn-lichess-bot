@@ -16,7 +16,7 @@ type Deltapawn struct {
 	color int
 	game  *chess.Game
 	depth int
-    book  opening.Book
+	book  opening.Book
 }
 
 func NewDeltapawn() *Deltapawn {
@@ -25,7 +25,7 @@ func NewDeltapawn() *Deltapawn {
 			chess.UseNotation(chess.UCINotation{}),
 		),
 		depth: searchDepth,
-        book: opening.NewBookECO(),
+		book:  opening.NewBookECO(),
 	}
 }
 
@@ -78,33 +78,31 @@ func (b *Deltapawn) NextBestMove() string {
 	bestmove := moves[0]
 	bestscore := -9999999999
 
-    possibleopenings := b.book.Possible(b.game.Moves())
-    /*
-    for _, o := range possibleopenings {
-        log.Println(o.Code())
-        time.Sleep(time.Millisecond * 50)
-
-    }
-    */ 
-    if len(possibleopenings) > 1 {
-        om := possibleopenings[rand.Intn(len(possibleopenings))].Game().Moves()
-        return om[len(b.game.Moves())].String()
-    } else if len(possibleopenings) == 1 {
-        om := possibleopenings[0].Game().Moves()
-        return om[len(b.game.Moves())].String()
-    
-    }
-
-	for _, move := range moves {
-		g := b.game.Clone()
-		g.Move(move)
-		v := pvs(g, math.MinInt64, math.MaxInt64, b.depth, 1)
-		if v > bestscore {
-			bestmove = move
+	if len(b.game.Moves()) < 4 {
+		return b.game.ValidMoves()[rand.Intn(len(b.game.ValidMoves()))].String()
+	} else if len(b.game.Moves()) < 8 {
+		for _, move := range moves {
+			g := b.game.Clone()
+			g.Move(move)
+			v := pvs(g, math.MinInt64, math.MaxInt64, 0, 1)
+			if v > bestscore {
+				bestmove = move
+			}
 		}
-	}
 
-	return bestmove.String()
+		return bestmove.String()
+	} else {
+		for _, move := range moves {
+			g := b.game.Clone()
+			g.Move(move)
+			v := pvs(g, math.MinInt64, math.MaxInt64, b.depth, 1)
+			if v > bestscore {
+				bestmove = move
+			}
+		}
+
+		return bestmove.String()
+	}
 }
 
 func (b *Deltapawn) IsGameOver() bool {

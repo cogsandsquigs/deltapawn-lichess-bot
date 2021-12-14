@@ -2,15 +2,17 @@ package engine
 
 import (
 	"log"
+	"math"
 
 	"github.com/notnil/chess"
 )
 
-// implementation of principal valuation searche
+// implementation of principal valuation search
 func pvs(game *chess.Game, alpha, beta, depth, color int) int {
 	switch depth {
 	case 0:
-		return evalBoard(game.Position().Board())
+		log.Printf("evaluating move %s with depth of %d", game.Moves()[len(game.Moves())-1], depth)
+		return quiesce(game, math.MinInt64, math.MaxInt64, -color) // evalBoard(game.Position().Board())
 	default:
 		moves := sortMoves(game, game.ValidMoves(), color)
 		bSearchPv := true
